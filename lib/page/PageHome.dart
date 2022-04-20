@@ -28,11 +28,11 @@ class _PageHomeState extends State<PageHome> {
       if (currentCategory == "All") {
         noteListData = allNotes;
       } else {
-        noteListData = allNotes.where((note) => note.category == currentCategory).toList();
+        noteListData =
+            allNotes.where((note) => note.category == currentCategory).toList();
       }
       categoryList = getCategoryList(allNotes);
       categoryList.insert(0, "All");
-
     });
   }
 
@@ -77,7 +77,6 @@ class _PageHomeState extends State<PageHome> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,12 +88,33 @@ class _PageHomeState extends State<PageHome> {
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             Note note = noteListData[index];
-            return ListTile(
-              isThreeLine: true,
-              title: Text(note.title),
-              subtitle: Text(note.content,overflow: TextOverflow.ellipsis,maxLines: 1,),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageEditor(note)));
+            return Dismissible(
+              key: Key(note.uuid),
+              child: ListTile(
+                isThreeLine: true,
+                title: Text(note.title),
+                subtitle: Text(
+                  note.content,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PageEditor(note)));
+                },
+              ),
+              // secondaryBackground: Container(
+              //   color: Colors.red,
+              // ),
+              background: Container(
+                color: Colors.red,
+              ),
+              confirmDismiss: (DismissDirection direction) async {
+                return true;
+              },
+              onDismissed: (DismissDirection direction) {
+                NoteStore.removeNote(context, note);
+                didChangeDependencies();
               },
             );
           },

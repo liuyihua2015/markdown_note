@@ -104,6 +104,7 @@ class _NoteStoreState extends State<NoteStore> {
     setState(() {
       notes.remove(note.uuid);
     });
+    _saveAllNoteToDisk();
     return NoteOperationRet.SUCCESS;
   }
 
