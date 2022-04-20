@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_note/model/note.dart';
 import 'package:markdown_note/note/NoteStore.dart';
 import 'package:markdown_note/page/PageEditor.dart';
+import 'dart:math';
 
 class PageHome extends StatefulWidget {
   const PageHome({Key? key}) : super(key: key);
@@ -12,12 +13,26 @@ class PageHome extends StatefulWidget {
 
 class _PageHomeState extends State<PageHome> {
   List<Note> noteListData = [];
+  List<String> categoryList = ["All"];
+  String currentCategory = "All";
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     setState(() {
-      noteListData = NoteStore.notes(context);
+      debugPrint('didChangeDependencies');
+
+      List<Note> allNotes = NoteStore.notes(context);
+
+      //Get corresponding data according to classification
+      if (currentCategory == "All") {
+        noteListData = allNotes;
+      } else {
+        noteListData = allNotes.where((note) => note.category == currentCategory).toList();
+      }
+      categoryList = getCategoryList(allNotes);
+      categoryList.insert(0, "All");
+
     });
   }
 
@@ -25,7 +40,7 @@ class _PageHomeState extends State<PageHome> {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
-        children: [
+        children: <Widget>[
           const DrawerHeader(
             child: Text(
               '分类列表',
@@ -35,28 +50,33 @@ class _PageHomeState extends State<PageHome> {
               color: Colors.blue,
             ),
           ),
-          ListTile(
-            title: const Text('分类1'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('分类2'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('分类3'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+          SizedBox(
+            height: double.maxFinite,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: ListTile(
+                    title: Text(
+                      categoryList[index],
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      setState(() {
+                        currentCategory = categoryList[index];
+                      });
+                      didChangeDependencies();
+                    },
+                  ),
+                );
+              },
+              itemCount: categoryList.length,
+            ),
           ),
         ],
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +103,8 @@ class _PageHomeState extends State<PageHome> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageEditor(null)));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => PageEditor(null)));
         },
         child: Icon(Icons.add),
       ),

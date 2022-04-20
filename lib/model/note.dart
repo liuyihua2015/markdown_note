@@ -20,3 +20,16 @@ class Note {
         "category": category,
       };
 }
+
+//get category list by note
+List<String> getCategoryList(List<Note> notes) {
+  List<String> categoryList = [];
+  for (var note in notes) {
+    if (!categoryList.contains(note.category)) {
+      categoryList.add(note.category);
+    }
+  }
+  return categoryList;
+}
+
+

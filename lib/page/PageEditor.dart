@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown_note/page/PageMeta.dart';
+import 'package:markdown_note/page/PagePreview.dart';
 import 'package:uuid/uuid.dart';
 
+import '../common/Widgets/widgets.dart';
 import '../model/note.dart';
 import '../note/NoteStore.dart';
 
@@ -28,51 +31,70 @@ class _PageEditorState extends State<PageEditor> {
   }
 
   void saveNote() async {
+    if (newTitle.isEmpty) {
+      toastInfo(msg: '标题不能为空');
+      return;
+    }
+    if (controller.text.isEmpty) {
+      toastInfo(msg: '内容不能为空');
+      return;
+    }
+
     NoteOperationRet result;
     if (widget.originNote == null) {
       String uuid = const Uuid().v4();
       result = await NoteStore.createNote(
-          context, Note(uuid, newTitle, newCategory, controller.text));
+          context, Note(uuid, newTitle, controller.text, newCategory));
     } else {
       String uuid = widget.originNote?.uuid ?? "";
       result = await NoteStore.updateNote(
-          context,Note(uuid, newTitle, newCategory, controller.text));
+          context, Note(uuid, newTitle, controller.text, newCategory));
     }
     if (result != NoteOperationRet.SUCCESS) {
       // 后续可改为弹出对话框等用户可感知的提示形式
-      print("笔记存储失败");
+      toastInfo(msg:"笔记存储失败");
     } else {
       Navigator.of(context).pop();
+      toastInfo(msg:"存储成功");
     }
+  }
+
+  void _pushPageMeta(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (context) => PageMeta(newTitle, newCategory)))
+        .then((meta) {
+      if (meta != null) {
+        setState(() {
+          newTitle = meta["newTitle"];
+          newCategory = meta["newCategory"];
+        });
+      }
+    });
   }
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       title: Row(
         children: [
-          Text(newTitle.isNotEmpty ? newTitle : '输入标题'),
+          SizedBox(
+              height: null,
+              width: 110,
+              child: GestureDetector(
+                  onTap: () => _pushPageMeta(context),
+                  child: Text(newTitle.isNotEmpty ? newTitle : '请输入标题'))),
           IconButton(
               icon: const Icon(
                 Icons.edit,
                 color: Colors.white,
               ),
-              onPressed: () => Navigator.of(context)
-                      .push(MaterialPageRoute(
-                          builder: (context) =>
-                              PageMeta(newTitle, newCategory)))
-                      .then((meta) {
-                    if (meta != null) {
-                      setState(() {
-                        newTitle = meta["newTitle"];
-                        newCategory = meta["newCategory"];
-                      });
-                    }
-                  })),
+              onPressed: () => _pushPageMeta(context)),
         ],
       ),
       actions: [
         IconButton(
-            onPressed: () {},
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PagePreview(newTitle, controller.text))),
             icon: const Icon(
               Icons.movie,
               color: Colors.white,
@@ -87,12 +109,11 @@ class _PageEditorState extends State<PageEditor> {
     );
   }
 
-
-
   /// 获取位置
   int _getEditorPosition() {
     return controller.selection.base.offset;
   }
+
   /// 向光标位置插入文本
   void _insertText(String text, {int deltaIndex = 0}) {
     int cursorPosition = _getEditorPosition();
@@ -100,7 +121,7 @@ class _PageEditorState extends State<PageEditor> {
     String textAfter = controller.text.substring(cursorPosition);
     controller.text = textBefore + text + textAfter;
     controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: cursorPosition+text.length + deltaIndex));
+        TextPosition(offset: cursorPosition + text.length + deltaIndex));
 
     // int position = _getEditorPosition();
     //
@@ -142,18 +163,16 @@ class _PageEditorState extends State<PageEditor> {
               buildTextButton("h2", () => _insertText("## ")),
               buildTextButton("h3", () => _insertText("### ")),
               IconButton(
-                icon: const Icon(
-                    Icons.format_bold, color: Colors.grey),
+                icon: const Icon(Icons.format_bold, color: Colors.grey),
                 onPressed: () => _insertText("****", deltaIndex: -2),
               ),
               IconButton(
-                icon: const Icon(
-                    Icons.format_italic, color: Colors.grey),
+                icon: const Icon(Icons.format_italic, color: Colors.grey),
                 onPressed: () => _insertText("**", deltaIndex: -1),
               ),
               IconButton(
-                icon: const Icon(
-                    Icons.format_list_bulleted, color: Colors.grey),
+                icon:
+                    const Icon(Icons.format_list_bulleted, color: Colors.grey),
                 onPressed: () => _insertText("* "),
               ),
             ],

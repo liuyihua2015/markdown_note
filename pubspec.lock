@@ -7,7 +7,7 @@ packages:
       name: args
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.6.0"
+    version: "2.3.0"
   async:
     dependency: transitive
     description:
@@ -103,7 +103,14 @@ packages:
       name: flutter_markdown
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.4"
+    version: "0.6.10"
+  flutter_screenutil:
+    dependency: "direct main"
+    description:
+      name: flutter_screenutil
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.4.0+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -114,6 +121,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "8.0.9"
   js:
     dependency: transitive
     description:
@@ -134,7 +148,7 @@ packages:
       name: markdown
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.8"
+    version: "5.0.0"
   matcher:
     dependency: transitive
     description:
