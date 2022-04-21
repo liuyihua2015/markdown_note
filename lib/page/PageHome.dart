@@ -103,19 +103,17 @@ class _PageHomeState extends State<PageHome> {
                       builder: (context) => PageEditor(note)));
                 },
               ),
-              // secondaryBackground: Container(
+              // 从右到左滑动删除
+              // background: Container(
               //   color: Colors.red,
               // ),
-              background: Container(
-                color: Colors.red,
-              ),
-              confirmDismiss: (DismissDirection direction) async {
-                return true;
-              },
-              onDismissed: (DismissDirection direction) {
-                NoteStore.removeNote(context, note);
-                didChangeDependencies();
-              },
+              // confirmDismiss: (DismissDirection direction) async {
+              //   return true;
+              // },
+              // onDismissed: (DismissDirection direction) {
+              //   NoteStore.removeNote(context, note);
+              //   didChangeDependencies();
+              // },
             );
           },
           itemCount: noteListData.length,
